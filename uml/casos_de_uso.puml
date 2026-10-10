@@ -1,0 +1,52 @@
+@startuml casos_de_uso
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Rescatista" as R
+actor "Veterinario" as V
+actor "Administrador" as A
+actor "Adoptante" as D
+actor "Voluntario" as VO
+actor "Servicio de Notificaciones" as N <<sistema externo>>
+
+rectangle "Sistema de Control de Rescate y Adopción Animal" {
+  usecase "Registrar reporte de rescate" as UC1
+  usecase "Registrar animal rescatado" as UC2
+  usecase "Registrar evaluación veterinaria" as UC3
+  usecase "Actualizar estado del animal" as UC4
+  usecase "Publicar animal para adopción" as UC5
+  usecase "Consultar animales disponibles" as UC6
+  usecase "Solicitar adopción" as UC7
+  usecase "Evaluar solicitud de adopción" as UC8
+  usecase "Formalizar adopción" as UC9
+  usecase "Dar seguimiento post-adopción" as UC10
+  usecase "Gestionar usuarios y roles" as UC11
+  usecase "Generar reportes" as UC12
+  usecase "Notificar cambios" as UC13
+  usecase "Autenticarse" as UC14
+  usecase "Registrar turno de cuidado" as UC15
+}
+
+R --> UC1
+R --> UC2
+V --> UC3
+V --> UC4
+VO --> UC15
+A --> UC5
+A --> UC8
+A --> UC9
+A --> UC11
+A --> UC12
+D --> UC6
+D --> UC7
+D --> UC10
+UC13 --> N
+
+UC1 .> UC2 : <<include>>
+UC3 .> UC4 : <<include>>
+UC9 .> UC8 : <<include>>
+UC7 .> UC14 : <<include>>
+UC4 .> UC13 : <<include>>
+UC9 .> UC13 : <<include>>
+UC10 .> UC13 : <<extend>>
+@enduml
