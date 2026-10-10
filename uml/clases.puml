@@ -1,0 +1,105 @@
+@startuml clases
+skinparam classAttributeIconSize 0
+
+enum EstadoAnimal {
+  RESCATADO
+  EN_TRATAMIENTO
+  DISPONIBLE
+  EN_PROCESO_ADOPCION
+  ADOPTADO
+}
+
+abstract class Animal {
+  - id: int
+  - nombre: String
+  - edad: int
+  - sexo: String
+  - fechaIngreso: Date
+  - estado: EstadoAnimal
+  + cambiarEstado(e: EstadoAnimal): void
+  + agregarObservador(o: Observador): void
+  + {abstract} getEspecie(): String
+}
+class Perro { + getEspecie(): String }
+class Gato { + getEspecie(): String }
+class OtroAnimal { + getEspecie(): String }
+Animal <|-- Perro
+Animal <|-- Gato
+Animal <|-- OtroAnimal
+
+class FabricaAnimal {
+  + {static} crear(tipo: String, datos: Map): Animal
+}
+FabricaAnimal ..> Animal : <<crea>>
+
+class ReporteRescate {
+  - id: int
+  - ubicacion: String
+  - fecha: Date
+  - descripcion: String
+  + registrar(): void
+}
+ReporteRescate "1" --> "1..*" Animal
+
+class FichaMedica {
+  - id: int
+  - diagnostico: String
+  - tratamiento: String
+  - fecha: Date
+}
+Animal "1" *-- "0..*" FichaMedica
+
+abstract class Usuario {
+  - id: int
+  - nombre: String
+  - correo: String
+  + autenticar(): boolean
+}
+class Rescatista
+class Veterinario { + evaluar(a: Animal): FichaMedica }
+class Administrador { + evaluarSolicitud(s: SolicitudAdopcion): void }
+class Adoptante { + solicitarAdopcion(a: Animal): SolicitudAdopcion }
+Usuario <|-- Rescatista
+Usuario <|-- Veterinario
+Usuario <|-- Administrador
+Usuario <|-- Adoptante
+
+class SolicitudAdopcion {
+  - id: int
+  - fecha: Date
+  - estado: String
+  + setEstrategia(e: EstrategiaEvaluacion): void
+  + evaluar(): boolean
+}
+Adoptante "1" --> "0..*" SolicitudAdopcion
+SolicitudAdopcion "0..*" --> "1" Animal
+
+interface EstrategiaEvaluacion {
+  + evaluar(s: SolicitudAdopcion): boolean
+}
+class EvaluacionPorPerfil
+class EvaluacionPorVisitaDomiciliaria
+EstrategiaEvaluacion <|.. EvaluacionPorPerfil
+EstrategiaEvaluacion <|.. EvaluacionPorVisitaDomiciliaria
+SolicitudAdopcion o-- EstrategiaEvaluacion
+
+class Adopcion {
+  - id: int
+  - fecha: Date
+  - contrato: String
+}
+Adopcion "1" --> "1" SolicitudAdopcion
+Adopcion "1" --> "1" Animal
+
+interface Observador { + actualizar(a: Animal): void }
+class NotificadorCorreo
+class NotificadorApp
+Observador <|.. NotificadorCorreo
+Observador <|.. NotificadorApp
+Animal "1" o-- "0..*" Observador
+
+interface ServicioMensajeria { + enviar(dest: String, msg: String): void }
+class AdaptadorCorreoExterno
+ServicioMensajeria <|.. AdaptadorCorreoExterno
+NotificadorCorreo ..> ServicioMensajeria
+@enduml
